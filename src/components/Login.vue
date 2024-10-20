@@ -1,39 +1,73 @@
 <template>
-  <div>
-    <h2>Login</h2>
-    <form @submit.prevent="login">
-      <div>
-        <label for="userName">User Name:</label>
-        <input type="email" id="userName" v-model="userName" required>
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" v-model="password" required>
-      </div>
-      <button type="submit">Login</button>
-    </form>
-  </div>
+  <v-app >
+    <v-main>
+      <v-container fluid fill-height>
+        <v-layout align-center justify-center>
+          <v-flex xs12 sm8 md4>
+            <v-card class="elevation-12">
+              <v-toolbar dark color="primary">
+                <v-toolbar-title>Login</v-toolbar-title>
+              </v-toolbar>
+              <v-card-text>
+                <form ref="form" @submit.prevent="login()">
+                  <v-text-field
+                      v-model="username"
+                      name="username"
+                      label="Username"
+                      type="text"
+                      placeholder="username"
+                      required
+                  ></v-text-field>
+
+                  <v-text-field
+                      v-model="password"
+                      name="password"
+                      label="Password"
+                      type="password"
+                      placeholder="password"
+                      required
+                  ></v-text-field>
+                  <v-btn type="submit" class="mt-4" color="primary" value="log in">Login</v-btn>
+                </form>
+              </v-card-text>
+            </v-card>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 export default {
+  name: "app-Login",
   data() {
     return {
-      userName: '',
-      password: ''
+      username: "",
+      password: "",
     };
   },
   methods: {
     login() {
-      // Perform login logic here, e.g., send credentials to an API
-      console.log('Email:', this.email);
-      console.log('Password:', this.password);
-    }
-  }
+      // const { username } = this;
+      // console.log(username + "logged in")
+      const auth = getAuth();
+
+      signInWithEmailAndPassword(auth, this.email, this.password)
+          .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
+            console.log('User signed in:', user);
+
+            // Redirect to protected page or update app state
+          })
+          .catch((error) => {
+            // Handle login errors
+            console.error('Login failed:', error);
+          });
+    },
+  },
 };
 </script>
-
-<style scoped>
-
-</style>
