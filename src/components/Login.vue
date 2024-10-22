@@ -11,14 +11,13 @@
               <v-card-text>
                 <form ref="form" @submit.prevent="login()">
                   <v-text-field
-                      v-model="username"
-                      name="username"
-                      label="Username"
-                      type="text"
-                      placeholder="username"
+                      v-model="email"
+                      name="email"
+                      label="Email"
+                      type="email"
+                      placeholder="Email"
                       required
                   ></v-text-field>
-
                   <v-text-field
                       v-model="password"
                       name="password"
@@ -27,7 +26,12 @@
                       placeholder="password"
                       required
                   ></v-text-field>
+                  <v-row>
                   <v-btn type="submit" class="mt-4" color="primary" value="log in">Login</v-btn>
+                    <v-spacer></v-spacer>
+                  <p class="red--text mt-4" v-if="loginFail"> Log in Failed! </p>
+                    <v-spacer></v-spacer>
+                  </v-row>
                 </form>
               </v-card-text>
             </v-card>
@@ -39,21 +43,28 @@
 </template>
 
 <script>
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+//import app from "@/App.vue";
+//import ScheduleCalendar from "@/components/ScheduleCalendar.vue";
+import {auth} from '@/main.js'
+//import {components} from "vuetify-loader/lib/matcher/generator";
+//import App from "@/App.vue";
 
 export default {
   name: "app-Login",
   data() {
+
     return {
-      username: "",
+      loginFail: false,
+      email: "",
       password: "",
     };
   },
   methods: {
     login() {
-      // const { username } = this;
+      //const { username } = this;
       // console.log(username + "logged in")
-      const auth = getAuth();
+      //const auth = getAuth();
 
       signInWithEmailAndPassword(auth, this.email, this.password)
           .then((userCredential) => {
@@ -62,9 +73,11 @@ export default {
             console.log('User signed in:', user);
 
             // Redirect to protected page or update app state
+            //appComponents: ScheduleCalendar})
           })
           .catch((error) => {
             // Handle login errors
+            this.loginFail = true
             console.error('Login failed:', error);
           });
     },

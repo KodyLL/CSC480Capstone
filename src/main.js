@@ -2,8 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
 //import vueTextareaAutosize from "vue-textarea-autosize";
+//import {auth} from 'firebase/app'
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 Vue.config.productionTip = false
 
@@ -16,14 +18,22 @@ const firebaseConfig = {
   appId: "1:55466067119:web:d321d3c54123852989005a",
   measurementId: "G-XW0XYWGZT1"
 };
-initializeApp(firebaseConfig)
-const firebaseApp = initializeApp(firebaseConfig);
-//const db = initializeApp(firebaseConfig)
-//const db = firebaseApp.firestore()
-const db =  getFirestore(firebaseApp)
-export {db}
+//initializeApp(firebaseConfig)
+const app = initializeApp(firebaseConfig);
+// const db = initializeApp(firebaseConfig)
+// const db = firebaseApp.firestore()
+const db =  getFirestore(app)
+const auth = getAuth(app);
+// export {db}
+export { auth, db };
 
-new Vue({
+// firebase.initializeApp(firebaseConfig);
+auth.onAuthStateChanged(() => new Vue({
   vuetify,
   render: h => h(App)
-}).$mount('#app')
+}).$mount('#app'))
+
+// new Vue({
+//   vuetify,
+//   render: h => h(App)
+// }).$mount('#app')

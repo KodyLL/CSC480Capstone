@@ -239,6 +239,7 @@
           <v-btn @click="clear(), dialog = false">
             Cancel
           </v-btn>
+          <p class="red--text mt-4" v-if="submitFail"> Event creation failed! {{ this.error }}</p>
 
         </form>
       </v-card>
@@ -252,11 +253,8 @@ import {db} from '@/main.js'
 import { validationMixin } from 'vuelidate'
 import {required, requiredIf} from 'vuelidate/lib/validators'
 import {collection, getDocs, addDoc, Timestamp} from "firebase/firestore";
-//import {forEach} from "core-js/stable/dom-collections";
-//import {query} from "vue/src/platforms/web/util";
-//import {collection, getDocs} from "firebase/firestore";
 import moment from 'moment'
-//import ScheduleCalendar from "@/components/ScheduleCalendar.vue";
+
 
 export default {
   mixins: [validationMixin],
@@ -320,6 +318,8 @@ export default {
     endDateMenu: false,
     startTimeMenu: false,
     endTimeMenu: false,
+    submitFail: false,
+    error: null
   }),
 
   computed: {
@@ -434,7 +434,7 @@ export default {
       if (!this.$v.$invalid) {
         //console.log(this.formatToTimeStamp(this.startDate,this.startTime), this.formatToTimeStamp(this.endDate,this.endTime))
         this.dbEntry()
-        this.$emit('close')
+        // this.$emit('close')
         // this.clear()
         // this.dialog = false
         // setTimeout(2000)
@@ -474,10 +474,17 @@ export default {
         endTimestamp: this.formatToTimeStamp(this.endDate, this.endTime),
         allDay: this.allDay,
         statusComplete: false,
+        techNotes: ''
       }).then(() => {
           this.clear()
           this.dialog = false
+          this.$emit('close')
           // ScheduleCalendar.methods.getEvents()
+      }).catch((error) => {
+        // Handle login errors
+        this.submitFail = true
+        this.error = error
+        console.error('Login failed:', error)
       })
 
       return docRef

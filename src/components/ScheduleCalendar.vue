@@ -1,5 +1,16 @@
+<div>
+
+</div>
 <template>
   <div>
+    <v-toolbar
+        color="indigo"
+        dark
+    >
+      <v-spacer></v-spacer>
+      <v-toolbar-title>Scheduler App!</v-toolbar-title>
+      <v-spacer></v-spacer>
+    </v-toolbar>
     <v-sheet
         tile
         height="54"
@@ -43,6 +54,12 @@
           class="ma-2"
           @close="getEvents"
       ></NewTaskForm>
+      <v-btn
+          class="ma-2"
+          color="primary"
+          @click="logout">
+        Log Out
+      </v-btn>
       <v-btn
           icon
           class="ma-2"
@@ -91,18 +108,57 @@
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
           </v-toolbar>
-          <v-card-text>
-            <span v-html="selectedEvent.details"></span>
+          <v-card-text >
+            <span v-html="selectedEvent.tech"></span>
+            <v-divider></v-divider>
+            <span v-html="selectedEvent.address"></span>
+            <v-divider></v-divider>
+            <span v-html="selectedEvent.description"></span>
+            <v-divider></v-divider>
+            <form v-if="selectedEvent.statusComplete===false">
+              <v-text-field
+                  v-model="techNotes"
+                  :error-messages="techNotesErrors"
+                  label="Tech Notes"
+                  required
+                  @input="$v.techNotes.$touch()"
+                  @blur="$v.techNotes.$touch()">
+              </v-text-field>
+            </form>
+            <span v-else>
+              <v-col>
+                <v-row>
+                  <span class="green--text">Complete!</span>
+                </v-row>
+                <v-row>
+                  <span v-html="selectedEvent.techNotes"></span>
+                </v-row>
+              </v-col>
+            </span>
           </v-card-text>
           <v-card-actions>
             <v-btn
                 text
                 color="secondary"
-                @click="selectedOpen = false"
+                @click="selectedOpen = false, clearError()">
+              Close
+            </v-btn>
+            <v-btn
+                text
+                color="secondary"
+                @click="completeEvent(selectedEvent)"
             >
-              Cancel
+              Complete
+            </v-btn>
+            <v-btn
+                text
+                color="secondary"
+                @click="dbDeleteEvent(selectedEvent)"
+            >
+              Delete
             </v-btn>
           </v-card-actions>
+          <span v-if="error" class="red--text" v-html="errorMessage"></span>
         </v-card>
       </v-menu>
     </v-sheet>
@@ -110,14 +166,22 @@
 </template>
 
 <script>
-import { collection, getDocs } from "firebase/firestore";
-//import { useDate } from 'vuetify'
-import {db} from '@/main.js'
+import {doc, collection, getDocs, updateDoc, deleteDoc} from "firebase/firestore";
+import {auth, db} from '@/main.js'
 import NewTaskForm from "@/components/NewTaskForm.vue";
+import { validationMixin } from 'vuelidate'
+import {required} from "vuelidate/lib/validators";
+//import {ref} from "vue";
 
 export default {
+  mixins: [validationMixin],
+
+  validations: {
+    techNotes: {required}
+  },
   components: {NewTaskForm},
   data: () => ({
+    techNotes: '',
     today: new Date().toISOString().substr(0, 10),
     focus: new Date().toISOString().substr(0, 10),
     type: 'month',
@@ -139,7 +203,18 @@ export default {
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
+    error: null,
+    errorMessage: ''
   }),
+
+  computed: {
+    techNotesErrors() {
+      const errors = []
+      if (!this.$v.techNotes.$dirty) return errors
+      !this.$v.techNotes.required && errors.push('Item is required')
+      return errors
+    }
+  },
   methods: {
     async getEvents() {
       let snapshot = await getDocs(collection(db, 'CalendarEvent'))
@@ -159,8 +234,9 @@ export default {
       snapshot.forEach((doc) => {
         let eventdata = doc.data()
         eventdata.id = doc.id
-        if (eventdata.statusComplete === false) {
+        //if (eventdata.statusComplete === false) {
           events.push({
+            id: eventdata.id,
             name: eventdata.eventType,
             tech: eventdata.tech,
             address: eventdata.address,
@@ -168,10 +244,11 @@ export default {
             start: new Date(eventdata.startTimestamp.toDate()),
             end: new Date(eventdata.endTimestamp.toDate()),
             allDay: eventdata.allDay,
+            techNotes: eventdata.techNotes || '',
             statusComplete: eventdata.statusComplete,
             color: 'blue'
           })
-        }
+        //}
 
       })
       this.techs = techs
@@ -193,32 +270,6 @@ export default {
 
       nativeEvent.stopPropagation()
     },
-    // getEvents ({ start, end }) {
-    //   const events = []
-    //
-    //   const min = new Date(`${start.date}T00:00:00`)
-    //   const max = new Date(`${end.date}T23:59:59`)
-    //   const days = (max.getTime() - min.getTime()) / 86400000
-    //   const eventCount = this.rnd(days, days + 20)
-    //
-    //   for (let i = 0; i < eventCount; i++) {
-    //     const allDay = this.rnd(0, 3) === 0
-    //     const firstTimestamp = this.rnd(min.getTime(), max.getTime())
-    //     const first = new Date(firstTimestamp - (firstTimestamp % 900000))
-    //     const secondTimestamp = this.rnd(2, allDay ? 288 : 8) * 900000
-    //     const second = new Date(first.getTime() + secondTimestamp)
-    //     console.log(first)
-    //     events.push({
-    //       name: this.names[this.rnd(0, this.names.length - 1)],
-    //       start: first,
-    //       end: second,
-    //       color: this.colors[this.rnd(0, this.colors.length - 1)],
-    //       timed: !allDay,
-    //     })
-    //   }
-    //
-    //   this.events = events
-    // },
     getEventColor (event) {
       let techName = event.tech
       this.techs.forEach(tech => {
@@ -230,6 +281,68 @@ export default {
     },
     rnd (a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a
+    },
+    completeEvent(selectedEvent) {
+      this.$v.$touch()
+      console.log(this.$v.$invalid)
+      if (!this.$v.$invalid) {
+        console.log(selectedEvent.id)
+        this.dbCompleteEvent(selectedEvent)
+      }
+    },
+    async dbCompleteEvent(selectedEvent) {
+      const data = {
+        eventType: selectedEvent.name,
+        tech: selectedEvent.tech,
+        address: selectedEvent.address,
+        description: selectedEvent.description,
+        startTimestamp: selectedEvent.start,
+        endTimestamp: selectedEvent.end,
+        allDay: selectedEvent.allDay,
+        color: selectedEvent.color,
+        techNotes: this.techNotes,
+        statusComplete: true
+      }
+      await updateDoc(doc(db, 'CalendarEvent', selectedEvent.id), data)
+          .then(() => {
+            console.log('Document successfully updated!')
+            this.clearError()
+          })
+          .catch((error) => {
+            // Handle update errors
+            this.error = error
+            console.error('Error updating document:', error)
+          })
+      this.selectedOpen = false
+
+      //return update
+
+
+    },
+
+    async dbDeleteEvent(selectedEvent) {
+      const docRef = doc(collection(db, 'CalendarEvent'),selectedEvent.id)
+      await deleteDoc(docRef)
+          .then(() => {
+            console.log('Document successfully deleted!')
+            this.selectedOpen = false
+            this.clearError()
+        })
+          .catch((error) => {
+            // Handle update errors
+            this.error = error
+            console.error('Error deleting document:', error)
+            this.errorMessage = ('Error deleting document:' + error)
+          })
+
+    },
+    clearError(){
+      this.error = null
+      this.errorMessage = ''
+    },
+    logout(){
+      auth.signOut()
+
     },
   },
 }
