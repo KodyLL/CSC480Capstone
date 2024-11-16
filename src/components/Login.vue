@@ -11,6 +11,7 @@
               <v-card-text>
                 <form ref="form" @submit.prevent="login()">
                   <v-text-field
+                      id = 'logInEmailField'
                       v-model="email"
                       name="email"
                       label="Email"
@@ -44,11 +45,9 @@
 
 <script>
 import { signInWithEmailAndPassword } from 'firebase/auth';
-//import app from "@/App.vue";
-//import ScheduleCalendar from "@/components/ScheduleCalendar.vue";
+
 import {auth} from '@/main.js'
-//import {components} from "vuetify-loader/lib/matcher/generator";
-//import App from "@/App.vue";
+
 
 export default {
   name: "app-Login",
@@ -62,10 +61,6 @@ export default {
   },
   methods: {
     login() {
-      //const { username } = this;
-      // console.log(username + "logged in")
-      //const auth = getAuth();
-
       signInWithEmailAndPassword(auth, this.email, this.password)
           .then((userCredential) => {
             // Signed in

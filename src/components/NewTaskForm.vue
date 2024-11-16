@@ -432,15 +432,7 @@ export default {
       this.$v.$touch()
       console.log(this.$v.$invalid)
       if (!this.$v.$invalid) {
-        //console.log(this.formatToTimeStamp(this.startDate,this.startTime), this.formatToTimeStamp(this.endDate,this.endTime))
         this.dbEntry()
-        // this.$emit('close')
-        // this.clear()
-        // this.dialog = false
-        // setTimeout(2000)
-        //
-        // this.$root.$emit('getEvents')
-        //this.$parent.getEvents()
       }
     },
     clearTimes () {
@@ -478,6 +470,7 @@ export default {
       }).then(() => {
           this.clear()
           this.dialog = false
+
           this.$emit('close')
           // ScheduleCalendar.methods.getEvents()
       }).catch((error) => {

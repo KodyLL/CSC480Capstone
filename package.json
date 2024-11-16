@@ -1,15 +1,20 @@
 {
-  "name": "csc480cap_project",
+  "name": "csc480capstone",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit",
+    "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@firebase/testing": "^0.20.11",
+    "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
     "core-js": "^3.8.3",
     "firebase": "^10.14.1",
+    "firebase-admin": "^12.7.0",
     "moment": "^2.30.1",
     "vue": "^2.6.14",
     "vuelidate": "^0.7.7",
@@ -20,8 +25,11 @@
     "@babel/eslint-parser": "^7.12.16",
     "@types/vuelidate": "^0.7.21",
     "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-e2e-cypress": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
+    "@vue/test-utils": "^1.1.3",
+    "cypress": "^9.7.0",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "sass": "~1.32.0",
@@ -42,11 +50,35 @@
     "parserOptions": {
       "parser": "@babel/eslint-parser"
     },
-    "rules": {}
+    "rules": {},
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
   },
   "browserslist": [
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "jest": {
+    "moduleNameMapper": {
+      "^vue$": "vue/dist/vue.common.js"
+    },
+    "moduleFileExtensions": [
+      "js",
+      "vue"
+    ],
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
+      ".*\\.(vue)$": "<rootDir>/node_modules/vue-jest"
+    }
+  }
 }

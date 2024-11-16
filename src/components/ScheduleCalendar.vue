@@ -55,6 +55,7 @@
           @close="getEvents"
       ></NewTaskForm>
       <v-btn
+          name="Logout"
           class="ma-2"
           color="primary"
           @click="logout">
@@ -108,14 +109,14 @@
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
           </v-toolbar>
-          <v-card-text >
+          <v-card-text>
             <span v-html="selectedEvent.tech"></span>
             <v-divider></v-divider>
             <span v-html="selectedEvent.address"></span>
             <v-divider></v-divider>
             <span v-html="selectedEvent.description"></span>
             <v-divider></v-divider>
-            <form v-if="selectedEvent.statusComplete===false">
+            <form id='techNoteForm' v-if="selectedEvent.statusComplete===false">
               <v-text-field
                   v-model="techNotes"
                   :error-messages="techNotesErrors"
@@ -131,7 +132,7 @@
                   <span class="green--text">Complete!</span>
                 </v-row>
                 <v-row>
-                  <span v-html="selectedEvent.techNotes"></span>
+                  <span id="submittedTechNotes" v-html="selectedEvent.techNotes"></span>
                 </v-row>
               </v-col>
             </span>
@@ -140,7 +141,7 @@
             <v-btn
                 text
                 color="secondary"
-                @click="selectedOpen = false, clearError()">
+                @click="selectedOpen = false, clearError(), clearTechNotes()">
               Close
             </v-btn>
             <v-btn
@@ -166,12 +167,11 @@
 </template>
 
 <script>
-import {doc, collection, getDocs, updateDoc, deleteDoc} from "firebase/firestore";
+import {doc, collection, getDocs, updateDoc, deleteDoc} from "firebase/firestore"
 import {auth, db} from '@/main.js'
-import NewTaskForm from "@/components/NewTaskForm.vue";
+import NewTaskForm from "@/components/NewTaskForm.vue"
 import { validationMixin } from 'vuelidate'
-import {required} from "vuelidate/lib/validators";
-//import {ref} from "vue";
+import {required} from "vuelidate/lib/validators"
 
 export default {
   mixins: [validationMixin],
@@ -208,6 +208,7 @@ export default {
   }),
 
   computed: {
+
     techNotesErrors() {
       const errors = []
       if (!this.$v.techNotes.$dirty) return errors
@@ -234,27 +235,25 @@ export default {
       snapshot.forEach((doc) => {
         let eventdata = doc.data()
         eventdata.id = doc.id
-        //if (eventdata.statusComplete === false) {
-          events.push({
-            id: eventdata.id,
-            name: eventdata.eventType,
-            tech: eventdata.tech,
-            address: eventdata.address,
-            description: eventdata.description,
-            start: new Date(eventdata.startTimestamp.toDate()),
-            end: new Date(eventdata.endTimestamp.toDate()),
-            allDay: eventdata.allDay,
-            techNotes: eventdata.techNotes || '',
-            statusComplete: eventdata.statusComplete,
-            color: 'blue'
-          })
-        //}
-
+        events.push({
+          id: eventdata.id,
+          name: eventdata.eventType,
+          tech: eventdata.tech,
+          address: eventdata.address,
+          description: eventdata.description,
+          start: new Date(eventdata.startTimestamp.toDate()),
+          end: new Date(eventdata.endTimestamp.toDate()),
+          allDay: eventdata.allDay,
+          techNotes: eventdata.techNotes || '',
+          statusComplete: eventdata.statusComplete,
+          color: 'blue'
+        })
       })
       this.techs = techs
       this.events = events
     },
     showEvent ({ nativeEvent, event }) {
+      this.clearTechNotes()
       const open = () => {
         this.selectedEvent = event
         this.selectedElement = nativeEvent.target
@@ -268,7 +267,7 @@ export default {
         open()
       }
 
-      nativeEvent.stopPropagation()
+      //nativeEvent.stopPropagation()
     },
     getEventColor (event) {
       let techName = event.tech
@@ -279,14 +278,9 @@ export default {
       })
       return event.color
     },
-    rnd (a, b) {
-      return Math.floor((b - a + 1) * Math.random()) + a
-    },
     completeEvent(selectedEvent) {
       this.$v.$touch()
-      console.log(this.$v.$invalid)
       if (!this.$v.$invalid) {
-        console.log(selectedEvent.id)
         this.dbCompleteEvent(selectedEvent)
       }
     },
@@ -305,7 +299,11 @@ export default {
       }
       await updateDoc(doc(db, 'CalendarEvent', selectedEvent.id), data)
           .then(() => {
-            console.log('Document successfully updated!')
+            //console.log('Document successfully updated!')
+            selectedEvent.techNotes = this.techNotes
+            selectedEvent.statusComplete = this.statusComplete
+            const index = this.events.findIndex(e => e.id === selectedEvent.id);
+            this.events[index] = selectedEvent
             this.clearError()
           })
           .catch((error) => {
@@ -313,19 +311,20 @@ export default {
             this.error = error
             console.error('Error updating document:', error)
           })
+      this.clearTechNotes()
       this.selectedOpen = false
-
-      //return update
-
-
+      this.$forceUpdate();
     },
 
     async dbDeleteEvent(selectedEvent) {
       const docRef = doc(collection(db, 'CalendarEvent'),selectedEvent.id)
+      console.log(auth.currentUser.uid)
       await deleteDoc(docRef)
           .then(() => {
-            console.log('Document successfully deleted!')
+            //console.log('Document successfully deleted!')
             this.selectedOpen = false
+            const index = this.events.findIndex(e => e.id === selectedEvent.id);
+            this.events.splice(index, 1);
             this.clearError()
         })
           .catch((error) => {
@@ -340,11 +339,17 @@ export default {
       this.error = null
       this.errorMessage = ''
     },
+    clearTechNotes() {
+      this.$v.$reset()
+      this.techNotes = ''
+      this.getEvents()
+    },
     logout(){
       auth.signOut()
 
     },
   },
+
 }
 </script>
 

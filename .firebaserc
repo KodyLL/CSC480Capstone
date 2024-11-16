@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "csc480capstonedb",
+    "csc480capstonedb": "csc480capstonedb"
+  },
+  "targets": {},
+  "etags": {}
+}
