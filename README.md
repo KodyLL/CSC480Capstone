@@ -1,4 +1,5 @@
 # csc480cap_project
+## by Kody Luke
 
 ## Project setup
 ```
