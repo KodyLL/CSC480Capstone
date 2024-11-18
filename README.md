@@ -20,5 +20,15 @@ npm run build
 npm run lint
 ```
 
+### Run E2E test
+```
+// start emmulator before test
+npm run test:e2e
+```
+
+### Run Firestore and auth emulators
+```
+Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
+```
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

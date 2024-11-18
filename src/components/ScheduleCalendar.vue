@@ -198,8 +198,6 @@ export default {
     value: '',
     events: [],
     techs: [],
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
-    names: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
@@ -208,7 +206,6 @@ export default {
   }),
 
   computed: {
-
     techNotesErrors() {
       const errors = []
       if (!this.$v.techNotes.$dirty) return errors
@@ -231,7 +228,6 @@ export default {
           color: techdata.color,
         })
       })
-
       snapshot.forEach((doc) => {
         let eventdata = doc.data()
         eventdata.id = doc.id
@@ -259,15 +255,12 @@ export default {
         this.selectedElement = nativeEvent.target
         requestAnimationFrame(() => requestAnimationFrame(() => this.selectedOpen = true))
       }
-
       if (this.selectedOpen) {
         this.selectedOpen = false
         requestAnimationFrame(() => requestAnimationFrame(() => open()))
       } else {
         open()
       }
-
-      //nativeEvent.stopPropagation()
     },
     getEventColor (event) {
       let techName = event.tech
@@ -299,7 +292,6 @@ export default {
       }
       await updateDoc(doc(db, 'CalendarEvent', selectedEvent.id), data)
           .then(() => {
-            //console.log('Document successfully updated!')
             selectedEvent.techNotes = this.techNotes
             selectedEvent.statusComplete = this.statusComplete
             const index = this.events.findIndex(e => e.id === selectedEvent.id);
@@ -321,7 +313,6 @@ export default {
       console.log(auth.currentUser.uid)
       await deleteDoc(docRef)
           .then(() => {
-            //console.log('Document successfully deleted!')
             this.selectedOpen = false
             const index = this.events.findIndex(e => e.id === selectedEvent.id);
             this.events.splice(index, 1);

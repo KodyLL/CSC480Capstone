@@ -264,15 +264,7 @@ export default {
     tech:{required},
     address:{required},
     description:{required},
-    // startDate: {
-    //   reqIfAllDayFalse:requiredIf((this.allDay):false)
-    // }
     startDate: {required},
-    // endDate:{
-    //   required: requiredIf(function () {
-    //     return (this.allDay === false && !this.startTime===null)
-    //   })
-    // },
     startTime:{
       required: requiredIf(function () {
         return this.allDay === false
@@ -283,24 +275,10 @@ export default {
         return this.allDay === false
       })
     },
-    // allDay: {checked (val) {
-    //   console.log(val)
-    //     return val
-    //   },
-    // },
-    //name: { required, maxLength: maxLength(10) },
-    //email: { required, email },
-    //select: { required },
-    // checkbox: {
-    //   checked (val) {
-    //     return val
-    //   },
-    // },
   },
 
   data: () => ({
-    //eventTypes: ['Meeting', 'Holiday', 'PTO', 'Travel', 'Event', 'Birthday', 'Conference', 'Party'],
-    techs:[],//this.getTechs()
+    techs:[],
     eventTypes:[],
     eventType:null,
     tech:null,
@@ -323,17 +301,6 @@ export default {
   }),
 
   computed: {
-    // checkboxErrors () {
-    //   const errors = []
-    //   //console.log(this.allDay)
-    //   if(!this.startTime===null || !this.endTime===null){
-    //     errors.push('Uncheck All Day to add times.')
-    //   }
-    //   return errors
-    //   // if (!this.$v.allDay.$dirty) return errors
-    //   // !this.$v.allDay.checked && errors.push('You must agree to continue!')
-    //   // return errors
-    // },
     eventTypeErrors () {
       const errors = []
       if (!this.$v.eventType.$dirty) return errors
@@ -349,45 +316,33 @@ export default {
     addressErrors () {
       const errors = []
       if (!this.$v.address.$dirty) return errors
-      //!this.$v.address.maxLength && errors.push('Name must be at most 10 characters long')
       !this.$v.address.required && errors.push('Address is required.')
       return errors
     },
     descriptionErrors () {
       const errors = []
       if (!this.$v.description.$dirty) return errors
-      //!this.$v.description.email && errors.push('Must be valid e-mail')
       !this.$v.description.required && errors.push('Description is required')
       return errors
     },
     startTimeErrors () {
       const errors = []
       if (!this.$v.startTime.$dirty) return errors
-      //!this.$v.description.email && errors.push('Must be valid e-mail')
       !this.$v.startTime.required && errors.push('Start time is required')
       return errors
     },
     endTimeErrors () {
       const errors = []
       if (!this.$v.endTime.$dirty) return errors
-      //!this.$v.description.email && errors.push('Must be valid e-mail')
       !this.$v.endTime.required && errors.push('End time is required')
       return errors
     },
     startDateErrors () {
       const errors = []
       if (!this.$v.startDate.$dirty) return errors
-      //!this.$v.description.email && errors.push('Must be valid e-mail')
       !this.$v.startDate.required && errors.push('Start date is required')
       return errors
     },
-    // endDateErrors () {
-    //   const errors = []
-    //   if (!this.$v.endDate.$dirty) return errors
-    //   //!this.$v.description.email && errors.push('Must be valid e-mail')
-    //   !this.$v.endDate.required && errors.push('End date is required')
-    //   return errors
-    // },
   },
 
   methods: {
@@ -441,7 +396,6 @@ export default {
         this.$v.startTime.$reset()
         this.endTime = null
         this.$v.endTime.$reset()
-
       }
     },
     clear () {
@@ -470,19 +424,14 @@ export default {
       }).then(() => {
           this.clear()
           this.dialog = false
-
           this.$emit('close')
-          // ScheduleCalendar.methods.getEvents()
       }).catch((error) => {
         // Handle login errors
         this.submitFail = true
         this.error = error
         console.error('Login failed:', error)
       })
-
       return docRef
-      //docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>())
-      //return docRef
     }
   },
 }

@@ -66,9 +66,6 @@ export default {
             // Signed in
             const user = userCredential.user;
             console.log('User signed in:', user);
-
-            // Redirect to protected page or update app state
-            //appComponents: ScheduleCalendar})
           })
           .catch((error) => {
             // Handle login errors

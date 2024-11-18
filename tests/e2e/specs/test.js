@@ -1,12 +1,11 @@
 // https://docs.cypress.io/api/table-of-contents
 
-//import Login from "@/components/Login.vue";
+// Test will run through all 6 test cases via Cypress automated browser control with input and mouse clicks.
 
-
-//firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
-
-
-
+// Run emulator with imported data before test w/ following command
+// Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
+// Ensure auth and firestore emulators in Main.js are match your local port configurations
+// Verify application server should run on 8081, if not modify below
 
 
 describe('My First Test', () => {
@@ -77,11 +76,5 @@ describe('My First Test', () => {
 
     // Use case 6 Log Out
    cy.get('button[name="Logout"]').click()
-
-
-    //cy.get('#logInEmailField').type("admin@admin.com")
-    //cy.get('#logInEmailField').should('have.attr','admin@admin.com')
-    //cy.get('#logInEmailField').should("have.value", "Write e2e tests")
-
   })
 })
