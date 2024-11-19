@@ -17,7 +17,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          run: Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
+          run: npm ci && Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
           start: npm run serve
           wait-on: <http://localhost:8080/>
           config_file: cypress.json
