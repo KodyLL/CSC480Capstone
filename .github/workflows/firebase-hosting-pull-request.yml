@@ -13,19 +13,31 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - run: npm install -g firebase-tools
-      - run: npm install
-#      - run: Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
-      # Install npm dependencies, cache them correctly
-      # and run all Cypress tests
+        uses: actions/checkout@v2
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v2
         with:
-          start: |
-            firebase use default
-            Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
-            npm run test:e2e
+          run: Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
+          start: npm run serve
+          wait-on: <http://localhost:8081/>
+          config_file: cypress.json
+          spec: "tests/e2e/specs/test.js"
+        env:
+          CYPRESS_baseUrl: <http://localhost:8081/>
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#      - run: npm install -g firebase-tools
+#      - run: npm install
+##      - run: Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
+#      # Install npm dependencies, cache them correctly
+#      # and run all Cypress tests
+#      - name: Cypress run
+#        uses: cypress-io/github-action@v6
+#        with:
+#          start: |
+#            Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
+#            npm run test:e2e
 #    steps:
 ##      - name: Checkout
 #      - uses: actions/checkout@v4
