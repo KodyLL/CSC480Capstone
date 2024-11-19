@@ -19,11 +19,11 @@ jobs:
         with:
 #          run: Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data
           start: Firebase emulators:start --import=exported-dev-data --export-on-exit=exported-dev-data && npm run serve
-          wait-on: <http://localhost:8080/>
+          wait-on: <http://localhost:8081/>
           config_file: cypress.json
           spec: "tests/e2e/specs/test.js"
         env:
-          CYPRESS_baseUrl: <http://localhost:8080/>
+          CYPRESS_baseUrl: <http://localhost:8081/>
 #    steps:
 #      - name: Checkout
 #        uses: actions/checkout@v4
