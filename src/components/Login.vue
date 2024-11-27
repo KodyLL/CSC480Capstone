@@ -45,9 +45,7 @@
 
 <script>
 import { signInWithEmailAndPassword } from 'firebase/auth';
-
 import {auth} from '@/main.js'
-
 
 export default {
   name: "app-Login",
